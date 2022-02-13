@@ -1,6 +1,7 @@
 from config import token
 from model import StyleTransferModel
 from io import BytesIO
+from threading import Lock
 
 model = StyleTransferModel()
 first_image_file = {}
@@ -36,8 +37,9 @@ def send_photo(update, context, content_image_file, style_image_file):
 
     style_image_stream = BytesIO()
     style_image_file.download(out=style_image_stream)
-
-    output = model.transfer_style(content_image_stream, style_image_stream)
+    
+    with Lock():
+        output = model.transfer_style(content_image_stream, style_image_stream)
 
     output_stream = BytesIO()
     output.save(output_stream, format='PNG')
@@ -54,8 +56,8 @@ if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     updater = Updater(token=token)
     dispatcher = updater.dispatcher
-    start_handler = CommandHandler('start', start)
+    start_handler = CommandHandler('start', start, run_async=True)
     dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(MessageHandler(Filters.photo, get_photo))
+    dispatcher.add_handler(MessageHandler(Filters.photo, get_photo, run_async=True))
     updater.start_polling()
     updater.idle()
