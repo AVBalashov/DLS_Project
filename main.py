@@ -49,7 +49,9 @@ def send_photo(update, context, content_image_file, style_image_file):
 
 if __name__ == '__main__':
     from telegram.ext import Updater, MessageHandler, Filters, CommandHandler
-
+    import logging
+    
+    logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO)
     updater = Updater(token=token)
     dispatcher = updater.dispatcher
     start_handler = CommandHandler('start', start)
